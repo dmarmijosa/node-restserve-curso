@@ -40,3 +40,9 @@ process.env.URLDB = urlDB;
 
 //mongodb: //localhost:27017/cafe
 //mongodb + srv: //dmarmijosa:<password>@cluster0.cfcmt.mongodb.net/<dbname>?retryWrites=true&w=majority
+
+//==================
+// Google Client Id
+//================
+
+process.env.CLIENT_ID = process.env.CLIENT_ID || '674737535512-5uolvj7c2ahgrq0p6srvfn99a3hj0gkg.apps.googleusercontent.com';
