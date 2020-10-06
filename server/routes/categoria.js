@@ -7,10 +7,10 @@ let Categoria = require('../models/categoria');
 // Mostrar todas las categorias
 //==================
 app.get('/categoria', verificaToken, (req, res) => {
+
     Categoria.find({})
-        .skip(desde)
-        .limit(limite)
-        .sort('descripcion')
+
+    .sort('descripcion')
         .populate('usuario', 'nombre email')
         .exec((err, categorias) => {
             if (err) {
