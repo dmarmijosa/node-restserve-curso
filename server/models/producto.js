@@ -7,6 +7,10 @@ let productoSchema = new Schema({
         type: String,
         required: [true, 'El nombre es necesario']
     },
+    img: {
+        type: String,
+        required: false
+    },
     precioUni: {
         type: Number,
         required: [true, 'El precio únitario es necesario']
