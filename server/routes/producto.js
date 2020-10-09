@@ -1,20 +1,22 @@
 const express = require('express');
-let { verificaToken } = require('../middlewares/autenticacion');
+
+const { verificaToken } = require('../middlewares/autenticacion');
+
+
 let app = express();
 let Producto = require('../models/producto');
 
-// =========================
-// Obtener productos
-// =========================
 
+// ===========================
+//  Obtener productos
+// ===========================
 app.get('/productos', verificaToken, (req, res) => {
-    //trae todos los productos
+    // trae todos los productos
     // populate: usuario categoria
-    //paginado
+    // paginado
+
     let desde = req.query.desde || 0;
     desde = Number(desde);
-
-
 
     Producto.find({ disponible: true })
         .skip(desde)
@@ -22,89 +24,98 @@ app.get('/productos', verificaToken, (req, res) => {
         .populate('usuario', 'nombre email')
         .populate('categoria', 'descripcion')
         .exec((err, productos) => {
+
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     err
                 });
-            };
+            }
 
             res.json({
                 ok: true,
-                productos,
+                productos
             });
 
 
-        });
-
+        })
 
 });
 
-// =========================
-// Obtener un producto por ID
-// =========================
-
-app.get('/productos/:id', verificaToken, (req, res) => {
-    //populate: usuario categoria
-    //paginado
+// ===========================
+//  Obtener un producto por ID
+// ===========================
+app.get('/productos/:id', (req, res) => {
+    // populate: usuario categoria
+    // paginado
     let id = req.params.id;
+
     Producto.findById(id)
         .populate('usuario', 'nombre email')
-        .populate('categoria', 'descripcion')
+        .populate('categoria', 'nombre')
         .exec((err, productoDB) => {
+
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     err
                 });
-            };
+            }
 
             if (!productoDB) {
                 return res.status(400).json({
                     ok: false,
                     err: {
-                        message: 'El ID no es correcto'
+                        message: 'ID no existe'
                     }
                 });
-            };
+            }
 
             res.json({
                 ok: true,
                 producto: productoDB
-            })
+            });
+
         });
+
 });
 
-// =========================
-// Buscar producto 
-// =========================
-
+// ===========================
+//  Buscar productos
+// ===========================
 app.get('/productos/buscar/:termino', verificaToken, (req, res) => {
+
     let termino = req.params.termino;
 
     let regex = new RegExp(termino, 'i');
+
     Producto.find({ nombre: regex })
         .populate('categoria', 'nombre')
         .exec((err, productos) => {
+
+
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     err
                 });
-            };
+            }
+
             res.json({
                 ok: true,
                 productos
             })
 
-        });
+        })
+
+
 });
 
 
-// =========================
-// Crear un nuevo producto 
-// =========================
 
+// ===========================
+//  Crear un nuevo producto
+// ===========================
 app.post('/productos', verificaToken, (req, res) => {
     // grabar el usuario
     // grabar una categoria del listado 
@@ -138,31 +149,33 @@ app.post('/productos', verificaToken, (req, res) => {
 
 });
 
-
-// =========================
-// Actualizar un producto 
-// =========================
-
+// ===========================
+//  Actualizar un producto
+// ===========================
 app.put('/productos/:id', verificaToken, (req, res) => {
-    //actualizar la categoria
+    // grabar el usuario
+    // grabar una categoria del listado 
+
     let id = req.params.id;
     let body = req.body;
 
     Producto.findById(id, (err, productoDB) => {
+
         if (err) {
             return res.status(500).json({
                 ok: false,
                 err
             });
-        };
+        }
+
         if (!productoDB) {
-            return res.status(500).json({
+            return res.status(400).json({
                 ok: false,
                 err: {
-                    message: 'El id no existe'
+                    message: 'El ID no existe'
                 }
             });
-        };
+        }
 
         productoDB.nombre = body.nombre;
         productoDB.precioUni = body.precioUni;
@@ -171,31 +184,32 @@ app.put('/productos/:id', verificaToken, (req, res) => {
         productoDB.descripcion = body.descripcion;
 
         productoDB.save((err, productoGuardado) => {
+
             if (err) {
                 return res.status(500).json({
                     ok: false,
-                    err,
-                })
-            };
+                    err
+                });
+            }
+
             res.json({
                 ok: true,
                 producto: productoGuardado
+            });
 
-            })
         });
 
-
     });
+
+
 });
 
-// =========================
-// Eliminar un  producto 
-// =========================
-
+// ===========================
+//  Borrar un producto
+// ===========================
 app.delete('/productos/:id', verificaToken, (req, res) => {
-    //eliminar una categoria por el usuario
-    let id = req.params.id;
 
+    let id = req.params.id;
 
     Producto.findById(id, (err, productoDB) => {
 
@@ -204,47 +218,40 @@ app.delete('/productos/:id', verificaToken, (req, res) => {
                 ok: false,
                 err
             });
-        };
+        }
 
         if (!productoDB) {
             return res.status(400).json({
                 ok: false,
                 err: {
-                    message: 'Usuario no encontrado'
+                    message: 'ID no existe'
                 }
             });
         }
 
         productoDB.disponible = false;
+
         productoDB.save((err, productoBorrado) => {
+
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     err
                 });
+            }
 
-
-            };
             res.json({
                 ok: true,
-                productoBorrado,
-                mensaje: 'Producto Borrado'
+                producto: productoBorrado,
+                mensaje: 'Producto borrado'
             });
 
         })
 
-
-
-    });
+    })
 
 
 });
-
-
-
-
-
-
 
 
 
